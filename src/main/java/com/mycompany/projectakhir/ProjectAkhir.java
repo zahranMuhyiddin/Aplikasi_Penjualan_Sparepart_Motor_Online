@@ -15,5 +15,6 @@ public class ProjectAkhir {
         System.out.println("Hello World!");
         System.out.println("Hello World!");
         System.out.println("Hello World!");
+        System.out.println("coba coba duluuuu");
     }
 }
