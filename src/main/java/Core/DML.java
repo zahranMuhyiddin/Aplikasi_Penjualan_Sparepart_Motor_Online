@@ -6,7 +6,6 @@ package Core;
 
 import java.sql.Statement;
 import java.sql.Connection;
-import java.sql.SQLException;
 import myConnection.DBO;
 
 /**
@@ -14,25 +13,16 @@ import myConnection.DBO;
  * @author LENOVO
  */
 public class DML {
-    static Connection Cnn;
-    static DBO db=new DBO();
-    static Statement st;
-    static int i;
-    
-    //Eksekusi Perintah INSERT, UPDATE, DELETE
-    public static int EQuery(String sql) throws SQLException {
-        try {
-            Cnn = db.getConnection();
-            st = Cnn.createStatement();
-            i = st.executeUpdate(sql);
-            return i;
+    static DBO db = new DBO();
+
+    // Eksekusi Perintah INSERT, UPDATE, DELETE
+    public static int EQuery(String sql) {
+        try (Connection cnn = db.getConnection();
+             Statement st = cnn.createStatement()) {
+            return st.executeUpdate(sql);
         } catch (Exception e) {
+            System.err.println("Eksekusi query gagal: " + e.getMessage());
             return 0;
         }
-        finally{
-            Cnn.close();
-        }
     }
-    
-    
 }

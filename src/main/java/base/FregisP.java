@@ -17,14 +17,14 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  *
  * @author LENOVO
  */
-public class Fregis extends javax.swing.JFrame {
+public class FregisP extends javax.swing.JFrame {
 
     /**
      * Creates new form Register
      */
     Properties props = new Properties();
 
-    public Fregis() {
+    public FregisP() {
         initComponents();
     }
 
@@ -251,18 +251,9 @@ public class Fregis extends javax.swing.JFrame {
 
             if (txtPass.getText().equals(txtRepass.getText())) {
 
-                kosongkan();
                 kirimData();
-                SysLogin sp = new SysLogin();
-                if (sp.Regis(tlog) == 1) {
-                    JOptionPane.showMessageDialog(this, "Data Tersimpan");
-                    coba cb = new coba();
-                    cb.setVisible(true);
-                    cb.setLocationRelativeTo(null);
-                    cb.setDefaultCloseOperation(Fregis.EXIT_ON_CLOSE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cek kembali identitas anda mungkin nama anda telah digunakan");
-                }
+                kosongkan();
+                setDefaultCloseOperation(FregisP.EXIT_ON_CLOSE);
 
             } else {
                 JOptionPane.showMessageDialog(rootPane, "The password doesn't match");
@@ -274,9 +265,14 @@ public class Fregis extends javax.swing.JFrame {
     }//GEN-LAST:event_btRegisActionPerformed
 
     void kirimData() {
-        TbLogin tlog = new TbLogin(txtNama.getText(), txtUsername.getText(), txtPass.getText());
+        TbLogin tlog = new TbLogin();
+        tlog.setName(txtNama.getText());
+        tlog.setUsername(txtUsername.getText());
+        tlog.setPass(txtPass.getText());
         try ( Producer<String, String> producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props)) {
-            producer.send(new ProducerRecord<>("topikmahasiswa", "", tlog.toString()));
+            producer.send(new ProducerRecord<>("register", "", tlog.toString()));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(rootPane, "Gagal mengirim data: " + e.getMessage());
         }
     }
 
@@ -300,10 +296,10 @@ public class Fregis extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNamaActionPerformed
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-        coba cb = new coba();
-        cb.setVisible(true);
-        cb.setLocationRelativeTo(null);
-        cb.setDefaultCloseOperation(Fregis.EXIT_ON_CLOSE);
+        Flogin fl = new Flogin();
+        fl.setVisible(true);
+        fl.setLocationRelativeTo(null);
+        fl.setDefaultCloseOperation(FregisP.EXIT_ON_CLOSE);
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -311,7 +307,6 @@ public class Fregis extends javax.swing.JFrame {
         props.put("linger.ms", 1);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        kosongkan();
     }//GEN-LAST:event_formWindowOpened
 
     private void btRegisKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btRegisKeyPressed
@@ -335,14 +330,18 @@ public class Fregis extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Fregis.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FregisP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Fregis.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FregisP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Fregis.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FregisP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Fregis.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FregisP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -351,7 +350,7 @@ public class Fregis extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Fregis().setVisible(true);
+                new FregisP().setVisible(true);
             }
         });
     }

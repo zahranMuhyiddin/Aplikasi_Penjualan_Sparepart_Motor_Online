@@ -4,6 +4,8 @@
  */
 package myEntity;
 
+import com.google.gson.Gson;
+
 /**
  *
  * @author LENOVO
@@ -14,15 +16,11 @@ public class TbLogin {
 
     public TbLogin() {
     }
-    
+
     public TbLogin(String name, String username, String pass) {
         this.name = name;
         this.username = username;
         this.pass = pass;
-    }
-
-    public TbLogin(String name) {
-        this.name = name;
     }
 
     public String getName() {
@@ -53,11 +51,11 @@ public class TbLogin {
     public String toString() {
         return String.format("[{name:%s,username:%s,pass:%s}]", name, username, pass);
     }
-    
+
     public void toObject(String string) {
-        name = string.substring(string.indexOf("nim") + 5, string.indexOf("nama") - 1);
-        username = string.substring(string.indexOf("nama") + 9, string.indexOf("prodi") - 1);
-        pass = string.substring(string.indexOf("prodi") + 5, string.indexOf("konsentrasi") - 1);
+        name = string.substring(string.indexOf("name") + 5, string.indexOf("username") - 1);
+        username = string.substring(string.indexOf("username") + 9, string.indexOf("pass") - 1);
+        pass = string.substring(string.indexOf("pass") + 5, string.indexOf("]") - 1);
     }
 
 }

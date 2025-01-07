@@ -19,19 +19,22 @@ import myEntity.TbLogin;
 public class SysLogin {
     public boolean coba;
     static DBO db=new DBO();
-    int i;
     
     
     
-    public int Regis(TbLogin reg){
-        try {
-            String sql = "insert into tblogin values('"+reg.getName()+"','"+reg.getUsername()+"','"
-                    +reg.getPass();
-            
-            i = DML.EQuery(sql);
-            
-            return i;
+    public int Regis(TbLogin reg) {
+        String sql = "INSERT INTO tblogin (name, username, password) VALUES (?, ?, ?)";
+        try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement(sql)) {
+
+            // Set parameter query
+            pst.setString(1, reg.getName());
+            pst.setString(2, reg.getUsername());
+            pst.setString(3, reg.getPass());
+
+            // Eksekusi query
+            return pst.executeUpdate();
         } catch (Exception e) {
+            System.err.println("Registrasi gagal: " + e.getMessage());
             return 0;
         }
     }

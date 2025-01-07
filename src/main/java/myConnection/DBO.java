@@ -13,21 +13,18 @@ import java.sql.SQLException;
  * @author LENOVO
  */
 public class DBO {
-    public Connection getConnection() throws SQLException
-    {
+    public Connection getConnection() {
         Connection cn = null;
         try {
-            String db= "Sparepart";
-            String sv = "jdbc:mysql://localhost:3307/"+db;
-            String driver="com.mysql.jdbc.Driver";
-            
-            Class.forName(driver);
-            cn = DriverManager.getConnection(sv,"root","");
-            return cn;
+            String db = "sparepart";
+            String sv = "jdbc:mysql://localhost:3306/" + db;
+            String driver = "com.mysql.jdbc.Driver";
+
+            Class.forName(driver); // Gunakan driver MySQL terbaru
+            cn = DriverManager.getConnection(sv, "root", "");
         } catch (Exception e) {
-            return null;
+            System.err.println("Koneksi database gagal: " + e.getMessage());
         }
-        
+        return cn;
     }
-    
 }

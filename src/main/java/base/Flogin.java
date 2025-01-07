@@ -4,11 +4,11 @@
  */
 package base;
 
-
-
+import com.mycompany.projectakhir.coba;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,7 +22,9 @@ import javax.swing.JOptionPane;
  * @author LENOVO
  */
 public class Flogin extends javax.swing.JFrame {
+
     public static String nama;
+
     /**
      * Creates new form SmartQ
      */
@@ -163,13 +165,35 @@ public class Flogin extends javax.swing.JFrame {
     }//GEN-LAST:event_txtUserActionPerformed
 
     private void btLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLoginActionPerformed
+        nama = txtUser.getText();
+        try ( Connection con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/sparepart", "root", "");  PreparedStatement pst = con.prepareStatement("SELECT * FROM tblogin WHERE Username = ? AND Password = ?")) {
 
-        
-        
+            pst.setString(1, txtUser.getText());
+            pst.setString(2, txtPass.getText());
+            try ( ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(null, "Login berhasil");
+                    coba cb = new coba();
+                    cb.setVisible(true);
+                    cb.setLocationRelativeTo(null);
+                    cb.setDefaultCloseOperation(Flogin.EXIT_ON_CLOSE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Username atau password salah");
+                    txtUser.setText("");
+                    txtPass.setText("");
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
+            e.printStackTrace(); // Untuk debugging
+        }
+
     }//GEN-LAST:event_btLoginActionPerformed
 
     private void btRegisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRegisActionPerformed
-        
+        FregisP rg = new FregisP();
+        rg.setVisible(true);
+        setVisible(false);
     }//GEN-LAST:event_btRegisActionPerformed
 
     private void txtPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPassActionPerformed
