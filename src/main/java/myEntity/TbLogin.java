@@ -12,17 +12,26 @@ import com.google.gson.Gson;
  */
 public class TbLogin {
 
-    String name, username, pass;
+    String name, username, pass, status;
 
     public TbLogin() {
     }
 
-    public TbLogin(String name, String username, String pass) {
+    public TbLogin(String name, String username, String pass, String status) {
         this.name = name;
         this.username = username;
         this.pass = pass;
+        this.status = status;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
     public String getName() {
         return name;
     }

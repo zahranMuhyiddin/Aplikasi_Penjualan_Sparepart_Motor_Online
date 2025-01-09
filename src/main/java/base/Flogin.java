@@ -4,7 +4,7 @@
  */
 package base;
 
-import com.mycompany.projectakhir.coba;
+import com.mycompany.projectakhir.menuAdminHome;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -173,10 +173,10 @@ public class Flogin extends javax.swing.JFrame {
             try ( ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     JOptionPane.showMessageDialog(null, "Login berhasil");
-                    coba cb = new coba();
-                    cb.setVisible(true);
-                    cb.setLocationRelativeTo(null);
-                    cb.setDefaultCloseOperation(Flogin.EXIT_ON_CLOSE);
+                    menuAdminHome SMA = new menuAdminHome();
+                    SMA.setVisible(true);
+                    SMA.setLocationRelativeTo(null);
+                    SMA.setDefaultCloseOperation(Flogin.EXIT_ON_CLOSE);
                 } else {
                     JOptionPane.showMessageDialog(null, "Username atau password salah");
                     txtUser.setText("");

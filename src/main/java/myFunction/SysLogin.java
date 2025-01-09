@@ -9,7 +9,6 @@ import java.sql.Connection;
 import myConnection.DBO;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import com.mycompany.projectakhir.coba;
 import myEntity.TbLogin;
 
 /**
@@ -17,7 +16,6 @@ import myEntity.TbLogin;
  * @author LENOVO
  */
 public class SysLogin {
-    public boolean coba;
     static DBO db=new DBO();
     
     

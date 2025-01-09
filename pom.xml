@@ -43,6 +43,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.26</version>
         </dependency>
+        <dependency>
+            <groupId>unknown.binary</groupId>
+            <artifactId>RSButtonIconI</artifactId>
+            <version>SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
@@ -55,9 +60,9 @@
     <build>
         <resources>
             <resource>
-                <directory>src\main\java\com\mycompany\projectakhir</directory>
+                <directory>src/main/java</directory>
                 <includes>
-                    <include>*.png</include>
+                    <include>**/*</include>
                 </includes>
             </resource>
         </resources>
