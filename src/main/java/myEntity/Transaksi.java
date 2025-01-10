@@ -9,13 +9,12 @@ package myEntity;
  * @author LENOVO
  */
 public class Transaksi {
-    String id_kasir, id_produk;
-    int id_detail_beli, jumlah, total;
+    String id_kasir, id_produk, id_detail_beli, jumlah, total;
 
     public Transaksi() {
     }
 
-    public Transaksi(String id_kasir, String id_produk, int id_detail_beli, int jumlah, int total) {
+    public Transaksi(String id_kasir, String id_produk, String id_detail_beli, String jumlah, String total) {
         this.id_kasir = id_kasir;
         this.id_produk = id_produk;
         this.id_detail_beli = id_detail_beli;
@@ -39,29 +38,32 @@ public class Transaksi {
         this.id_produk = id_produk;
     }
 
-    public int getId_detail_beli() {
+    public String getId_detail_beli() {
         return id_detail_beli;
     }
 
-    public void setId_detail_beli(int id_detail_beli) {
+    public void setId_detail_beli(String id_detail_beli) {
         this.id_detail_beli = id_detail_beli;
     }
 
-    public int getJumlah() {
+    public String getJumlah() {
         return jumlah;
     }
 
-    public void setJumlah(int jumlah) {
+    public void setJumlah(String jumlah) {
         this.jumlah = jumlah;
     }
 
-    public int getTotal() {
+    public String getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(String total) {
         this.total = total;
     }
+
+    
+    
     
     
     @Override
@@ -71,14 +73,10 @@ public class Transaksi {
 
     public void toObject(String string) {
     id_kasir = string.substring(string.indexOf("id_kasir") + 9, string.indexOf("id_produk") - 1);
-    id_produk = string.substring(string.indexOf("id_produk") + 9, string.indexOf("jumlah") - 1);
-    try {
-        jumlah = Integer.parseInt(string.substring(string.indexOf("jumlah") + 7, string.indexOf("total") - 1));
-        total = Integer.parseInt(string.substring(string.indexOf("total") + 6, string.indexOf("]") - 1));
-    } catch (NumberFormatException e) {
-        // Tangani exception jika konversi gagal
-        System.out.println("Error: " + e.getMessage());
-    }
+    id_produk = string.substring(string.indexOf("id_produk") + 10, string.indexOf("jumlah") - 1);
+    jumlah = string.substring(string.indexOf("jumlah") + 7, string.indexOf("total") - 1);
+    total = string.substring(string.indexOf("total") + 6, string.indexOf("]") - 1);
+    
 }
 
     

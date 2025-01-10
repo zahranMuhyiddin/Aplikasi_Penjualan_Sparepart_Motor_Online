@@ -17,14 +17,19 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import myConnection.DBO;
+import myEntity.ProdukBaru;
 import myEntity.Transaksi;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
@@ -34,8 +39,9 @@ public class menuAdminHome extends javax.swing.JFrame {
 
     static DBO db = new DBO();
     Connection cnn = db.getConnection();
+    Properties props = new Properties();
     int cc;
-    public static Transaksi tr;
+
     private DefaultListModel<String> modelPesan;
 
     /**
@@ -49,7 +55,9 @@ public class menuAdminHome extends javax.swing.JFrame {
         Laporanbeli.setVisible(false);
         detailpm.setVisible(false);
         account.setVisible(false);
-        modelPesan = (DefaultListModel<String>) listname.getModel();
+
+        new Thread(this::consumekafka).start();
+
     }
 
     private void table_updatedp() {
@@ -167,7 +175,8 @@ public class menuAdminHome extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         pndp2 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        listname = new javax.swing.JList<>();
+        modelPesan = new DefaultListModel<>();
+        listname = new javax.swing.JList<>(modelPesan);
         txtidk = new javax.swing.JTextField();
         txtidp = new javax.swing.JTextField();
         txttotal = new javax.swing.JTextField();
@@ -231,6 +240,11 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(85, 85, 85));
@@ -283,18 +297,33 @@ public class menuAdminHome extends javax.swing.JFrame {
         jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel11.setText("Akun");
+        jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel11MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 40));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel15.setText("Daftar Produk");
+        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel15MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 200, 250, 40));
 
         jLabel16.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel16.setText("Laporan Produk Masuk");
+        jLabel16.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel16MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 40));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
@@ -310,7 +339,7 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 570));
 
-        daftarproduk.setVisible(false);
+        daftarproduk.setVisible(true);
         daftarproduk.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(153, 153, 153));
@@ -377,7 +406,7 @@ public class menuAdminHome extends javax.swing.JFrame {
         });
         jPanel1.add(btbersih, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 110, 90, 30));
 
-        jLabel27.setText("Stok Produk");
+        jLabel27.setText("Harga_satuan");
         jPanel1.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, -1));
 
         txthrg.addActionListener(new java.awt.event.ActionListener() {
@@ -470,7 +499,7 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         getContentPane().add(daftarproduk, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -30, 670, 600));
 
-        Laporanbeli.setVisible(true);
+        Laporanbeli.setVisible(false);
         Laporanbeli.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pndp3.setBackground(new java.awt.Color(85, 85, 85));
@@ -480,7 +509,7 @@ public class menuAdminHome extends javax.swing.JFrame {
         jLabel13.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setText("DETAIL PEMBELIAN");
-        pndp3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 0, 190, 40));
+        pndp3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 0, 190, 40));
 
         tbdetailbeli.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -522,8 +551,8 @@ public class menuAdminHome extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel12.setText("Notifikasi");
-        pndp1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 0, 80, 30));
+        jLabel12.setText("Notifikasi Kafka");
+        pndp1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 130, 30));
 
         Laporanbeli.getContentPane().add(pndp1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 440, 650, 30));
 
@@ -531,9 +560,14 @@ public class menuAdminHome extends javax.swing.JFrame {
         pndp2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         pndp2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        listname.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                listnameValueChanged(evt);
+            }
+        });
         jScrollPane3.setViewportView(listname);
 
-        pndp2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 100));
+        pndp2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 240, 80));
         pndp2.add(txtidk, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 110, -1));
         pndp2.add(txtidp, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 40, 110, -1));
         pndp2.add(txttotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 40, 180, -1));
@@ -852,23 +886,34 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         String id = String.valueOf(model.getValueAt(selectedIndex, 0));
 
-        String idproduk, idsupplier, namaproduk, sstok;
-        int stok, harga;
+        String idproduk, idsupplier, namaproduk, stok, harga;
 
         idproduk = txtidproduk.getText();
         idsupplier = txtsupplier.getText();
         namaproduk = txtnamaproduk.getText();
-        stok = Integer.parseInt(txtstok.getText());
-        harga = Integer.parseInt(txthrg.getText());
+        stok = txtstok.getText();
+        harga = txthrg.getText();
 
         try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement("UPDATE produk SET Id_Produk=?,Id_Supplier=?,Nama_Produk=?,Stok=?, harga_satuan=? WHERE Id_Produk=?")) {
             // Set parameter query
             pst.setString(1, idproduk);
             pst.setString(2, idsupplier);
             pst.setString(3, namaproduk);
-            pst.setInt(4, stok);
-            pst.setInt(5, harga);
+            pst.setString(4, stok);
+            pst.setString(5, harga);
             pst.setString(6, id);
+            
+            ProdukBaru pb = new ProdukBaru();
+            pb.setIdproduk(idproduk);
+            pb.setNamaproduk(namaproduk);
+            pb.setStok(stok);
+            pb.setHarga(harga);
+            try ( Producer<String, String> producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props)) {
+                producer.send(new ProducerRecord<>("dataproduk", "", pb.toString())
+                );
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(rootPane, "Gagal mengirim data: " + e.getMessage());
+            }
 
             // Eksekusi query
             pst.executeUpdate();
@@ -883,22 +928,33 @@ public class menuAdminHome extends javax.swing.JFrame {
     }//GEN-LAST:event_btubahActionPerformed
 
     private void bttambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttambahActionPerformed
-        String idproduk, idsupplier, namaproduk;
-        int stok, harga;
+        String idproduk, idsupplier, namaproduk, stok, harga;
 
         idproduk = txtidproduk.getText();
         idsupplier = txtsupplier.getText();
         namaproduk = txtnamaproduk.getText();
-        stok = Integer.parseInt(txtstok.getText());
-        harga = Integer.parseInt(txthrg.getText());
+        stok = txtstok.getText();
+        harga = txthrg.getText();
 
         try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement("INSERT INTO produk (Id_Produk, Id_Supplier, Nama_Produk, Stok, harga_satuan) VALUES (?, ?, ?, ?, ?)")) {
             // Set parameter query
             pst.setString(1, idproduk);
             pst.setString(2, idsupplier);
             pst.setString(3, namaproduk);
-            pst.setInt(4, stok);
-            pst.setInt(5, harga);
+            pst.setString(4, stok);
+            pst.setString(5, harga);
+
+            ProdukBaru pb = new ProdukBaru();
+            pb.setIdproduk(idproduk);
+            pb.setNamaproduk(namaproduk);
+            pb.setStok(stok);
+            pb.setHarga(harga);
+            try ( Producer<String, String> producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props)) {
+                producer.send(new ProducerRecord<>("dataproduk", "", pb.toString())
+                );
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(rootPane, "Gagal mengirim data: " + e.getMessage());
+            }
 
             // Eksekusi query
             pst.executeUpdate();
@@ -1045,6 +1101,38 @@ public class menuAdminHome extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btsearchActionPerformed
 
+    private void listnameValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listnameValueChanged
+
+    }//GEN-LAST:event_listnameValueChanged
+
+    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
+        daftarproduk.setVisible(true);
+        Laporanbeli.setVisible(false);
+        detailpm.setVisible(false);
+        account.setVisible(false);
+    }//GEN-LAST:event_jLabel15MouseClicked
+
+    private void jLabel16MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel16MouseClicked
+        daftarproduk.setVisible(false);
+        Laporanbeli.setVisible(false);
+        detailpm.setVisible(true);
+        account.setVisible(false);
+    }//GEN-LAST:event_jLabel16MouseClicked
+
+    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
+        daftarproduk.setVisible(false);
+        Laporanbeli.setVisible(false);
+        detailpm.setVisible(false);
+        account.setVisible(true);
+    }//GEN-LAST:event_jLabel11MouseClicked
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("linger.ms", 1);
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    }//GEN-LAST:event_formWindowOpened
+
     public void kosongkan() {
         txtidproduk.setText("");
         txtsupplier.setText("");
@@ -1056,10 +1144,12 @@ public class menuAdminHome extends javax.swing.JFrame {
         txtidp.setText("");
         txtjumlah.setText("");
         txttotal.setText("");
+        modelPesan.clear();
     }
 
-    public void terimapesan() {
+    public void consumekafka() {
 
+        Transaksi tr = new Transaksi();
         Properties props = new Properties();
         props.setProperty("bootstrap.servers", "localhost:9092");
         props.setProperty("group.id", "konsumer-group");
@@ -1069,7 +1159,7 @@ public class menuAdminHome extends javax.swing.JFrame {
         props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
         try ( KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
-            consumer.subscribe(Arrays.asList("register"));
+            consumer.subscribe(Arrays.asList("detailpembelian"));
 
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
@@ -1080,17 +1170,14 @@ public class menuAdminHome extends javax.swing.JFrame {
                         }
 
                         tr.toObject(record.value());
+                        System.out.println("Pesan diterima: " + record.value());
 
                         txtidk.setText(tr.getId_kasir());
                         txtidp.setText(tr.getId_produk());
-                        txtjumlah.setText(String.valueOf(tr.getJumlah()));
-                        txttotal.setText(String.valueOf(tr.getTotal()));
+                        txtjumlah.setText(tr.getJumlah());
+                        txttotal.setText(tr.getTotal());
                         modelPesan.addElement(record.value());
 
-                        if ("kosongkan".equalsIgnoreCase(record.value())) {
-                            modelPesan.clear();
-
-                        };
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1099,7 +1186,6 @@ public class menuAdminHome extends javax.swing.JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**

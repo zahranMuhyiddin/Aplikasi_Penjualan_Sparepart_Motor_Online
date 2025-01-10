@@ -5,27 +5,31 @@
 package com.mycompany.projectakhir;
 
 import base.Flogin;
-import java.awt.BorderLayout;
-import java.awt.Color;
+
 import java.awt.print.PrinterException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import myConnection.DBO;
+import myEntity.ProdukBaru;
 import myEntity.Transaksi;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -38,6 +42,7 @@ public class Menukasir extends javax.swing.JFrame {
     DBO db = new DBO();
     Connection cnn = db.getConnection();
     Properties props = new Properties();
+    DefaultListModel<String> modelPesan;
 
     /**
      * Creates new form Register
@@ -45,6 +50,10 @@ public class Menukasir extends javax.swing.JFrame {
     public Menukasir() {
         initComponents();
         table_update();
+        dataPenjualan.setVisible(false);
+        framePenjualan.setVisible(true);
+        
+        new Thread(this::consumekafka).start();
     }
 
     private void table_update() {
@@ -65,6 +74,32 @@ public class Menukasir extends javax.swing.JFrame {
                 for (int ii = 1; ii <= cc; ii++) {
                     v2.add(rs.getString("Id_Produk"));
                     v2.add(rs.getString("Nama_Produk"));
+                    v2.add(rs.getString("harga_satuan"));
+                }
+                model.addRow(v2);
+
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(menuAdminHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+            PreparedStatement pst = cnn.prepareStatement("SELECT * FROM produk");
+            ResultSet rs = pst.executeQuery();
+
+            ResultSetMetaData RSMD = rs.getMetaData();
+            cc = RSMD.getColumnCount();
+            DefaultTableModel model = (DefaultTableModel) tbdetailbeli.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Vector v2 = new Vector();
+
+                for (int ii = 1; ii <= cc; ii++) {
+                    v2.add(rs.getString("Id_Produk"));
+                    v2.add(rs.getString("Nama_Produk"));
+                    v2.add(rs.getString("Stok"));
                     v2.add(rs.getString("harga_satuan"));
                 }
                 model.addRow(v2);
@@ -141,9 +176,30 @@ public class Menukasir extends javax.swing.JFrame {
         bgmenu = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        account = new javax.swing.JInternalFrame();
+        dataPenjualan = new javax.swing.JInternalFrame();
+        pndp3 = new javax.swing.JPanel();
+        jLabel13 = new javax.swing.JLabel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        tbdetailbeli = new javax.swing.JTable();
+        pndp1 = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        pndp2 = new javax.swing.JPanel();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        modelPesan = new DefaultListModel<>();
+        listname = new javax.swing.JList<>(modelPesan);
+        txtidk = new javax.swing.JTextField();
+        txtidp = new javax.swing.JTextField();
+        txttotal = new javax.swing.JTextField();
+        txtjumlah = new javax.swing.JTextField();
+        btdel = new javax.swing.JButton();
+        pndp = new javax.swing.JPanel();
+        btsearch = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        txtcari2 = new javax.swing.JTextField();
+        LBEXIT2 = new javax.swing.JLabel();
+        framePenjualan = new javax.swing.JInternalFrame();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        del = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbbeli = new javax.swing.JTable();
         txtcari = new javax.swing.JTextField();
@@ -163,7 +219,6 @@ public class Menukasir extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         LBEXIT = new javax.swing.JLabel();
-        LBMIN = new javax.swing.JLabel();
 
         jLabel3.setText("jLabel3");
 
@@ -226,31 +281,161 @@ public class Menukasir extends javax.swing.JFrame {
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel15.setText("Penjualan");
+        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel15MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 40));
 
         jLabel16.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel16.setText("Daftar Produk");
+        jLabel16.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel16MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 200, 250, 40));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 570));
 
-        account.setVisible(true);
-        account.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        dataPenjualan.setVisible(true);
+        dataPenjualan.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pndp3.setBackground(new java.awt.Color(85, 85, 85));
+        pndp3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pndp3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel13.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel13.setText("DAFTAR PRODUK");
+        pndp3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 0, 170, 40));
+
+        tbdetailbeli.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "id_produk", "nama_produk", "stok", "harga"
+            }
+        ));
+        jScrollPane7.setViewportView(tbdetailbeli);
+
+        pndp3.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 630, 330));
+
+        dataPenjualan.getContentPane().add(pndp3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 670, 370));
+
+        pndp1.setBackground(new java.awt.Color(85, 85, 85));
+        pndp1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pndp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel12.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel12.setText("Notifikasi Kafka");
+        pndp1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 130, 30));
+
+        dataPenjualan.getContentPane().add(pndp1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 440, 680, 30));
+
+        pndp2.setBackground(new java.awt.Color(153, 153, 153));
+        pndp2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pndp2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        listname.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                listnameValueChanged(evt);
+            }
+        });
+        jScrollPane8.setViewportView(listname);
+
+        pndp2.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 240, 80));
+        pndp2.add(txtidk, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 110, -1));
+        pndp2.add(txtidp, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 40, 110, -1));
+        pndp2.add(txttotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 40, 180, -1));
+        pndp2.add(txtjumlah, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 10, 180, -1));
+
+        btdel.setText("DEL");
+        btdel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btdelMouseClicked(evt);
+            }
+        });
+        btdel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btdelActionPerformed(evt);
+            }
+        });
+        pndp2.add(btdel, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 10, 60, 80));
+
+        dataPenjualan.getContentPane().add(pndp2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 470, 680, 100));
+
+        pndp.setBackground(new java.awt.Color(153, 153, 153));
+        pndp.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pndp.setForeground(new java.awt.Color(255, 255, 255));
+        pndp.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        btsearch.setText("Search");
+        btsearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btsearchActionPerformed(evt);
+            }
+        });
+        pndp.add(btsearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 30, 80, 30));
+
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/search.png"))); // NOI18N
+        pndp.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, -1, 30));
+        pndp.add(txtcari2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 500, 30));
+
+        LBEXIT2.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        LBEXIT2.setForeground(new java.awt.Color(255, 255, 255));
+        LBEXIT2.setText("X");
+        LBEXIT2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                LBEXIT2MouseClicked(evt);
+            }
+        });
+        pndp.add(LBEXIT2, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 10, -1, 20));
+
+        dataPenjualan.getContentPane().add(pndp, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 680, 80));
+
+        getContentPane().add(dataPenjualan, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -30, 680, -1));
+
+        framePenjualan.setVisible(true);
+        framePenjualan.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(153, 153, 153));
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel1.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButton1.setText("Delete");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        del.setText("Delete");
+        del.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                delActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 330, 100, -1));
+        jPanel1.add(del, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 330, 100, -1));
 
         tbbeli.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -377,7 +562,7 @@ public class Menukasir extends javax.swing.JFrame {
         });
         jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 70, -1));
 
-        account.getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 680, 540));
+        framePenjualan.getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 680, 540));
 
         jPanel3.setBackground(new java.awt.Color(85, 85, 85));
         jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -393,14 +578,9 @@ public class Menukasir extends javax.swing.JFrame {
         });
         jPanel3.add(LBEXIT, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 0, -1, 30));
 
-        LBMIN.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        LBMIN.setForeground(new java.awt.Color(255, 255, 255));
-        LBMIN.setText("_");
-        jPanel3.add(LBMIN, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, -30, 10, 70));
+        framePenjualan.getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 680, 30));
 
-        account.getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 680, 30));
-
-        getContentPane().add(account, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -30, 690, 600));
+        getContentPane().add(framePenjualan, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -30, 690, 600));
 
         setSize(new java.awt.Dimension(933, 570));
         setLocationRelativeTo(null);
@@ -418,9 +598,10 @@ public class Menukasir extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_bgmenuMouseClicked
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void delActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delActionPerformed
+        DefaultTableModel dfTujuan = (DefaultTableModel) tbbeli.getModel();
+        dfTujuan.setRowCount(0);
+    }//GEN-LAST:event_delActionPerformed
 
     private void bckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bckActionPerformed
 
@@ -481,10 +662,10 @@ public class Menukasir extends javax.swing.JFrame {
             Transaksi tr = new Transaksi();
             tr.setId_kasir(idkasir);
             tr.setId_produk(id_produk);
-            tr.setJumlah(jumlah);
-            tr.setTotal(total);
+            tr.setJumlah(String.valueOf(jumlah));
+            tr.setTotal(String.valueOf(total));
             try ( Producer<String, String> producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props)) {
-                producer.send(new ProducerRecord<>("register", "", tr.toString())
+                producer.send(new ProducerRecord<>("detailpembelian", "", tr.toString())
                 );
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(rootPane, "Gagal mengirim data: " + e.getMessage());
@@ -523,6 +704,7 @@ public class Menukasir extends javax.swing.JFrame {
             b.print(); //print
             DefaultTableModel dt = (DefaultTableModel) tbbeli.getModel();
             dt.setRowCount(0);
+            b.setText("");
 
         } catch (PrinterException e) {
             System.out.println(e);
@@ -567,6 +749,73 @@ public class Menukasir extends javax.swing.JFrame {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     }//GEN-LAST:event_formWindowOpened
+
+    private void listnameValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listnameValueChanged
+
+    }//GEN-LAST:event_listnameValueChanged
+
+    private void btdelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btdelMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btdelMouseClicked
+
+    private void btdelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btdelActionPerformed
+        kosongkan();
+    }//GEN-LAST:event_btdelActionPerformed
+
+    public void kosongkan() {
+        txtidk.setText("");
+        txtidp.setText("");
+        txtjumlah.setText("");
+        txttotal.setText("");
+        modelPesan.clear();
+    }
+
+
+    private void btsearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btsearchActionPerformed
+        int cc;
+        String idproduk;
+        idproduk = txtcari.getText();
+        try {
+            PreparedStatement pst = cnn.prepareStatement("SELECT * FROM produk where Id_Produk =?");
+            pst.setString(1, idproduk);
+            ResultSet rs = pst.executeQuery();
+
+            ResultSetMetaData RSMD = rs.getMetaData();
+            cc = RSMD.getColumnCount();
+            DefaultTableModel model = (DefaultTableModel) tbdetailbeli.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Vector v2 = new Vector();
+
+                for (int ii = 1; ii <= cc; ii++) {
+                    v2.add(rs.getString("Id_Produk"));
+                    v2.add(rs.getString("Nama_Produk"));
+                    v2.add(rs.getString("Stok"));
+                    v2.add(rs.getString("harga_satuan"));
+                }
+                model.addRow(v2);
+
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(menuAdminHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btsearchActionPerformed
+
+    private void LBEXIT2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LBEXIT2MouseClicked
+        System.exit(0);
+    }//GEN-LAST:event_LBEXIT2MouseClicked
+
+    private void jLabel16MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel16MouseClicked
+        dataPenjualan.setVisible(true);
+        framePenjualan.setVisible(false);
+    }//GEN-LAST:event_jLabel16MouseClicked
+
+    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
+        dataPenjualan.setVisible(false);
+        framePenjualan.setVisible(true);
+    }//GEN-LAST:event_jLabel15MouseClicked
 
     public void pay() {
         // pat btn action
@@ -661,6 +910,52 @@ public class Menukasir extends javax.swing.JFrame {
 
         }
     }
+    
+    public void consumekafka() {
+        
+        ProdukBaru pb = new ProdukBaru();
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "localhost:9092");
+        props.setProperty("group.id", "konsumer-group");
+        props.setProperty("enable.auto.commit", "true");
+        props.setProperty("auto.commit.interval.ms", "1000");
+        props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        try ( KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+            consumer.subscribe(Arrays.asList("dataproduk"));
+
+            while (true) {
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                for (ConsumerRecord<String, String> record : records) {
+                    try {
+                        if (pb == null) {
+                            pb = new ProdukBaru(); // Inisialisasi tlog jika belum ada
+                        }
+
+                        pb.toObject(record.value());
+                        System.out.println("Pesan diterima: " + record.value());
+                        
+                        txtidk.setText(pb.getIdproduk());
+                        txtidp.setText(pb.getNamaproduk());
+                        txtjumlah.setText(pb.getStok());
+                        txttotal.setText(pb.getHarga());
+                        modelPesan.addElement(record.value());
+                        
+                        if ("kosongkan".equalsIgnoreCase(record.value())) {
+                            modelPesan.clear();
+                        }
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
 
     /**
      * @param args the command line arguments
@@ -731,17 +1026,23 @@ public class Menukasir extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel LBEXIT;
-    private javax.swing.JLabel LBMIN;
-    private javax.swing.JInternalFrame account;
+    private javax.swing.JLabel LBEXIT2;
     private javax.swing.JTextArea b;
     private javax.swing.JLabel bal;
     private javax.swing.JButton bck;
     private javax.swing.JLabel bgmenu;
+    private javax.swing.JButton btdel;
     private javax.swing.JButton btlogout;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btsearch;
+    private javax.swing.JInternalFrame dataPenjualan;
+    private javax.swing.JButton del;
+    private javax.swing.JInternalFrame framePenjualan;
     private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel18;
@@ -757,10 +1058,23 @@ public class Menukasir extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JList<String> listname;
     private javax.swing.JTextField pay;
+    private javax.swing.JPanel pndp;
+    private javax.swing.JPanel pndp1;
+    private javax.swing.JPanel pndp2;
+    private javax.swing.JPanel pndp3;
     private javax.swing.JTable tbbeli;
+    private javax.swing.JTable tbdetailbeli;
     private javax.swing.JTable tbproduk;
     private javax.swing.JLabel total;
     private javax.swing.JTextField txtcari;
+    private javax.swing.JTextField txtcari2;
+    private javax.swing.JTextField txtidk;
+    private javax.swing.JTextField txtidp;
+    private javax.swing.JTextField txtjumlah;
+    private javax.swing.JTextField txttotal;
     // End of variables declaration//GEN-END:variables
 }
