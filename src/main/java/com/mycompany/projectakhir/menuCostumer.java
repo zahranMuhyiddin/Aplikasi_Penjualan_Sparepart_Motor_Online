@@ -30,6 +30,13 @@ public class menuCostumer extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel3 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        btlogout = new javax.swing.JButton();
+        btpembelian = new javax.swing.JButton();
+        btriwayatp = new javax.swing.JButton();
+        bgmenu = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         txtidproduk = new javax.swing.JTextField();
         txtidpelanggan = new javax.swing.JTextField();
@@ -43,16 +50,7 @@ public class menuCostumer extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tabelproduk = new javax.swing.JTable();
         jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
         txtharga = new javax.swing.JTextField();
-        txtpengambilan = new javax.swing.JTextField();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        btlogout = new javax.swing.JButton();
-        btpembelian = new javax.swing.JButton();
-        btriwayatp = new javax.swing.JButton();
-        bgmenu = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         LBEXIT = new javax.swing.JLabel();
         LBMIN = new javax.swing.JLabel();
@@ -62,61 +60,6 @@ public class menuCostumer extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel1.setBackground(new java.awt.Color(153, 153, 153));
-        jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel1.add(txtidproduk, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 210, 270, -1));
-        jPanel1.add(txtidpelanggan, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 250, 270, -1));
-
-        txtjumlah.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtjumlahActionPerformed(evt);
-            }
-        });
-        jPanel1.add(txtjumlah, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 330, 270, -1));
-        jPanel1.add(txttanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 290, 270, -1));
-
-        jLabel1.setText("Id Produk");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 210, -1, -1));
-
-        jLabel6.setText("Id Pelanggan");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 250, -1, -1));
-
-        jLabel7.setText("Tanggal Pembelian");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, -1, -1));
-
-        jLabel8.setText("Jumlah Produk");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 330, -1, -1));
-
-        btkirim.setText("Kirim");
-        jPanel1.add(btkirim, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 460, 170, 40));
-
-        tabelproduk.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "", "", "", ""
-            }
-        ));
-        jScrollPane2.setViewportView(tabelproduk);
-
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 180));
-
-        jLabel9.setText("Harga");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 370, -1, -1));
-
-        jLabel10.setText("Pengambilan");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 410, -1, -1));
-        jPanel1.add(txtharga, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 370, 270, -1));
-        jPanel1.add(txtpengambilan, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 410, 270, -1));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 30, 650, 540));
 
         jPanel2.setBackground(new java.awt.Color(85, 85, 85));
         jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -183,6 +126,57 @@ public class menuCostumer extends javax.swing.JFrame {
         jPanel2.add(bgmenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(-50, 0, 340, 190));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 570));
+
+        jPanel1.setBackground(new java.awt.Color(153, 153, 153));
+        jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel1.add(txtidproduk, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 210, 270, -1));
+        jPanel1.add(txtidpelanggan, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 250, 270, -1));
+
+        txtjumlah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtjumlahActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txtjumlah, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 330, 270, -1));
+        jPanel1.add(txttanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 290, 270, -1));
+
+        jLabel1.setText("Id Produk");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 210, -1, -1));
+
+        jLabel6.setText("Id Pelanggan");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 250, -1, -1));
+
+        jLabel7.setText("Tanggal Pembelian");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, -1, -1));
+
+        jLabel8.setText("Jumlah Produk");
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 330, -1, -1));
+
+        btkirim.setText("Kirim");
+        jPanel1.add(btkirim, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 460, 170, 40));
+
+        tabelproduk.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "", "", "", ""
+            }
+        ));
+        jScrollPane2.setViewportView(tabelproduk);
+
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 180));
+
+        jLabel9.setText("Subtotal");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 370, -1, -1));
+        jPanel1.add(txtharga, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 370, 270, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 30, 650, 540));
 
         jPanel3.setBackground(new java.awt.Color(85, 85, 85));
         jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -275,7 +269,6 @@ public class menuCostumer extends javax.swing.JFrame {
     private javax.swing.JButton btpembelian;
     private javax.swing.JButton btriwayatp;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -292,7 +285,6 @@ public class menuCostumer extends javax.swing.JFrame {
     private javax.swing.JTextField txtidpelanggan;
     private javax.swing.JTextField txtidproduk;
     private javax.swing.JTextField txtjumlah;
-    private javax.swing.JTextField txtpengambilan;
     private javax.swing.JTextField txttanggal;
     // End of variables declaration//GEN-END:variables
 }

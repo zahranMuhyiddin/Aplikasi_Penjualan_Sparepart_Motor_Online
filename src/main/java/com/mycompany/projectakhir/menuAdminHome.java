@@ -10,12 +10,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import myConnection.DBO;
+import myEntity.Transaksi;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 /**
  *
@@ -26,6 +35,8 @@ public class menuAdminHome extends javax.swing.JFrame {
     static DBO db = new DBO();
     Connection cnn = db.getConnection();
     int cc;
+    public static Transaksi tr;
+    private DefaultListModel<String> modelPesan;
 
     /**
      * Creates new form Register
@@ -33,9 +44,43 @@ public class menuAdminHome extends javax.swing.JFrame {
     public menuAdminHome() {
         initComponents();
         table_update();
+        table_updatedp();
         daftarproduk.setVisible(true);
         Laporanbeli.setVisible(false);
         detailpm.setVisible(false);
+        account.setVisible(false);
+        modelPesan = (DefaultListModel<String>) listname.getModel();
+    }
+
+    private void table_updatedp() {
+        int cc;
+
+        try {
+            PreparedStatement pst = cnn.prepareStatement("SELECT * FROM detail_pembelian");
+            ResultSet rs = pst.executeQuery();
+
+            ResultSetMetaData RSMD = rs.getMetaData();
+            cc = RSMD.getColumnCount();
+            DefaultTableModel model = (DefaultTableModel) tbdetailbeli.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Vector v2 = new Vector();
+
+                for (int ii = 1; ii <= cc; ii++) {
+                    v2.add(rs.getString("id_detail_beli"));
+                    v2.add(rs.getString("id_kasir"));
+                    v2.add(rs.getString("id_produk"));
+                    v2.add(rs.getString("jumlah"));
+                    v2.add(rs.getString("subtotal"));
+                }
+                model.addRow(v2);
+
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(menuAdminHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void table_update() {
@@ -57,6 +102,7 @@ public class menuAdminHome extends javax.swing.JFrame {
                     v2.add(rs.getString("Id_Supplier"));
                     v2.add(rs.getString("Nama_Produk"));
                     v2.add(rs.getString("Stok"));
+                    v2.add(rs.getString("harga_satuan"));
                 }
                 model.addRow(v2);
 
@@ -101,6 +147,8 @@ public class menuAdminHome extends javax.swing.JFrame {
         btubah = new javax.swing.JButton();
         bthapus = new javax.swing.JButton();
         btbersih = new javax.swing.JButton();
+        jLabel27 = new javax.swing.JLabel();
+        txthrg = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         LBMIN = new javax.swing.JLabel();
         LBEXIT = new javax.swing.JLabel();
@@ -115,23 +163,20 @@ public class menuAdminHome extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbdetailbeli = new javax.swing.JTable();
-        btcetak = new javax.swing.JButton();
         pndp1 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         pndp2 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         listname = new javax.swing.JList<>();
-        txtidp = new javax.swing.JTextField();
-        txtiddp = new javax.swing.JTextField();
         txtidk = new javax.swing.JTextField();
-        txtsub = new javax.swing.JTextField();
+        txtidp = new javax.swing.JTextField();
+        txttotal = new javax.swing.JTextField();
         txtjumlah = new javax.swing.JTextField();
-        txtnamap = new javax.swing.JTextField();
         btdel = new javax.swing.JButton();
         pndp = new javax.swing.JPanel();
         btsearch = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
-        txtsearch = new javax.swing.JTextField();
+        txtcari = new javax.swing.JTextField();
         LBMIN2 = new javax.swing.JLabel();
         LBEXIT2 = new javax.swing.JLabel();
         detailpm = new javax.swing.JInternalFrame();
@@ -237,7 +282,7 @@ public class menuAdminHome extends javax.swing.JFrame {
         jLabel11.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Account");
+        jLabel11.setText("Akun");
         jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 40));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
@@ -332,6 +377,16 @@ public class menuAdminHome extends javax.swing.JFrame {
         });
         jPanel1.add(btbersih, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 110, 90, 30));
 
+        jLabel27.setText("Stok Produk");
+        jPanel1.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, -1));
+
+        txthrg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txthrgActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txthrg, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 230, 200, -1));
+
         daftarproduk.getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 650, 300));
 
         jPanel3.setBackground(new java.awt.Color(85, 85, 85));
@@ -377,13 +432,29 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         tabelproduk.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Id_Produk", "Id_Supplier", "Nama_Produk", "Stok"
+                "Id_Produk", "Id_Supplier", "Nama_Produk", "Stok", "harga_satuan"
             }
         ));
         tabelproduk.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -399,7 +470,7 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         getContentPane().add(daftarproduk, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -30, 670, 600));
 
-        Laporanbeli.setVisible(false);
+        Laporanbeli.setVisible(true);
         Laporanbeli.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pndp3.setBackground(new java.awt.Color(85, 85, 85));
@@ -413,37 +484,34 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         tbdetailbeli.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "id_detail_beli", "id_kasir", "id_produk", "nama_produk", "jumlah", "subtotal"
+                "id_detail_beli", "id_kasir", "id_produk", "jumlah", "subtotal"
             }
         ));
         jScrollPane1.setViewportView(tbdetailbeli);
 
         pndp3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 620, 330));
-
-        btcetak.setText("Cetak");
-        pndp3.add(btcetak, new org.netbeans.lib.awtextra.AbsoluteConstraints(535, 10, 90, -1));
 
         Laporanbeli.getContentPane().add(pndp3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 640, 370));
 
@@ -466,12 +534,10 @@ public class menuAdminHome extends javax.swing.JFrame {
         jScrollPane3.setViewportView(listname);
 
         pndp2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 100));
-        pndp2.add(txtidp, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 70, 110, -1));
-        pndp2.add(txtiddp, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 110, -1));
-        pndp2.add(txtidk, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 40, 110, -1));
-        pndp2.add(txtsub, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 70, 180, -1));
-        pndp2.add(txtjumlah, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 40, 180, -1));
-        pndp2.add(txtnamap, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 10, 180, -1));
+        pndp2.add(txtidk, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 110, -1));
+        pndp2.add(txtidp, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 40, 110, -1));
+        pndp2.add(txttotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 40, 180, -1));
+        pndp2.add(txtjumlah, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 10, 180, -1));
 
         btdel.setText("DEL");
         btdel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -494,11 +560,16 @@ public class menuAdminHome extends javax.swing.JFrame {
         pndp.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btsearch.setText("Search");
+        btsearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btsearchActionPerformed(evt);
+            }
+        });
         pndp.add(btsearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 30, 80, 30));
 
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/search.png"))); // NOI18N
         pndp.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, -1, 30));
-        pndp.add(txtsearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 500, 30));
+        pndp.add(txtcari, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 500, 30));
 
         LBMIN2.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         LBMIN2.setForeground(new java.awt.Color(255, 255, 255));
@@ -711,7 +782,7 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         jLabel25.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         jLabel25.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel25.setText("TAMBAH PRODUK");
+        jLabel25.setText("AKUN");
         jPanel7.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 270, 30));
 
         account.getContentPane().add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 40));
@@ -722,7 +793,7 @@ public class menuAdminHome extends javax.swing.JFrame {
 
         jLabel26.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel26.setText("DAFTAR PRODUK");
+        jLabel26.setText("DAFTAR AKUN");
         jPanel8.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 270, 30));
 
         account.getContentPane().add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 340, 650, 50));
@@ -782,30 +853,28 @@ public class menuAdminHome extends javax.swing.JFrame {
         String id = String.valueOf(model.getValueAt(selectedIndex, 0));
 
         String idproduk, idsupplier, namaproduk, sstok;
-        int stok;
+        int stok, harga;
 
         idproduk = txtidproduk.getText();
         idsupplier = txtsupplier.getText();
         namaproduk = txtnamaproduk.getText();
-        sstok = txtstok.getText();
-        stok = Integer.valueOf(sstok);
+        stok = Integer.parseInt(txtstok.getText());
+        harga = Integer.parseInt(txthrg.getText());
 
-        try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement("UPDATE produk SET Id_Produk=?,Id_Supplier=?,Nama_Produk=?,Stok=? WHERE Id_Produk=?")) {
+        try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement("UPDATE produk SET Id_Produk=?,Id_Supplier=?,Nama_Produk=?,Stok=?, harga_satuan=? WHERE Id_Produk=?")) {
             // Set parameter query
             pst.setString(1, idproduk);
             pst.setString(2, idsupplier);
             pst.setString(3, namaproduk);
             pst.setInt(4, stok);
-            pst.setString(5, id);
+            pst.setInt(5, harga);
+            pst.setString(6, id);
 
             // Eksekusi query
             pst.executeUpdate();
             JOptionPane.showMessageDialog(null, "Berhasil Menyimpan");
             table_update();
-            txtidproduk.setText("");
-            txtsupplier.setText("");
-            txtnamaproduk.setText("");
-            txtstok.setText("");
+            kosongkan();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Gagal Menyimpan");
             System.err.println("simpan gagal " + e.getMessage());
@@ -814,30 +883,28 @@ public class menuAdminHome extends javax.swing.JFrame {
     }//GEN-LAST:event_btubahActionPerformed
 
     private void bttambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttambahActionPerformed
-        String idproduk, idsupplier, namaproduk, sstok;
-        int stok;
+        String idproduk, idsupplier, namaproduk;
+        int stok, harga;
 
         idproduk = txtidproduk.getText();
         idsupplier = txtsupplier.getText();
         namaproduk = txtnamaproduk.getText();
-        sstok = txtstok.getText();
-        stok = Integer.valueOf(sstok);
+        stok = Integer.parseInt(txtstok.getText());
+        harga = Integer.parseInt(txthrg.getText());
 
-        try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement("INSERT INTO produk (Id_Produk, Id_Supplier, Nama_Produk, Stok) VALUES (?, ?, ?, ?)")) {
+        try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement("INSERT INTO produk (Id_Produk, Id_Supplier, Nama_Produk, Stok, harga_satuan) VALUES (?, ?, ?, ?, ?)")) {
             // Set parameter query
             pst.setString(1, idproduk);
             pst.setString(2, idsupplier);
             pst.setString(3, namaproduk);
             pst.setInt(4, stok);
+            pst.setInt(5, harga);
 
             // Eksekusi query
             pst.executeUpdate();
             JOptionPane.showMessageDialog(null, "Berhasil Menyimpan");
             table_update();
-            txtidproduk.setText("");
-            txtsupplier.setText("");
-            txtnamaproduk.setText("");
-            txtstok.setText("");
+            kosongkan();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Gagal Menyimpan");
             System.err.println("simpan gagal " + e.getMessage());
@@ -859,6 +926,7 @@ public class menuAdminHome extends javax.swing.JFrame {
         txtsupplier.setText(model.getValueAt(selectedIndex, 1).toString());
         txtnamaproduk.setText(model.getValueAt(selectedIndex, 2).toString());
         txtstok.setText(model.getValueAt(selectedIndex, 3).toString());
+        txthrg.setText(model.getValueAt(selectedIndex, 4).toString());
 
     }//GEN-LAST:event_tabelprodukMouseClicked
 
@@ -881,10 +949,7 @@ public class menuAdminHome extends javax.swing.JFrame {
             pst.executeUpdate();
             JOptionPane.showMessageDialog(null, "Berhasil Menyimpan");
             table_update();
-            txtidproduk.setText("");
-            txtsupplier.setText("");
-            txtnamaproduk.setText("");
-            txtstok.setText("");
+            kosongkan();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Gagal Menyimpan");
             System.err.println("simpan gagal " + e.getMessage());
@@ -893,15 +958,14 @@ public class menuAdminHome extends javax.swing.JFrame {
     }//GEN-LAST:event_bthapusActionPerformed
 
     private void btbersihActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btbersihActionPerformed
-        txtidproduk.setText("");
-        txtsupplier.setText("");
-        txtnamaproduk.setText("");
-        txtstok.setText("");
+        kosongkan();
     }//GEN-LAST:event_btbersihActionPerformed
 
     private void jLabel17MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel17MouseClicked
         daftarproduk.setVisible(false);
         detailpm.setVisible(false);
+        Laporanbeli.setVisible(true);
+        account.setVisible(false);
     }//GEN-LAST:event_jLabel17MouseClicked
 
     private void btdelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btdelMouseClicked
@@ -909,12 +973,7 @@ public class menuAdminHome extends javax.swing.JFrame {
     }//GEN-LAST:event_btdelMouseClicked
 
     private void btdelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btdelActionPerformed
-        txtiddp.setText("");
-        txtidk.setText("");
-        txtidp.setText("");
-        txtnamap.setText("");
-        txtjumlah.setText("");
-        txtsub.setText("");
+        kosongkan();
     }//GEN-LAST:event_btdelActionPerformed
 
     private void txtpassakunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtpassakunActionPerformed
@@ -949,6 +1008,100 @@ public class menuAdminHome extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_tabelakunMouseClicked
 
+    private void txthrgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txthrgActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txthrgActionPerformed
+
+    private void btsearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btsearchActionPerformed
+        int cc;
+        String idproduk;
+        idproduk = txtcari.getText();
+        try {
+            PreparedStatement pst = cnn.prepareStatement("SELECT * FROM produk where id_detail_beli =?");
+            pst.setString(1, idproduk);
+            ResultSet rs = pst.executeQuery();
+
+            ResultSetMetaData RSMD = rs.getMetaData();
+            cc = RSMD.getColumnCount();
+            DefaultTableModel model = (DefaultTableModel) tbdetailbeli.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Vector v2 = new Vector();
+
+                for (int ii = 1; ii <= cc; ii++) {
+                    v2.add(rs.getString("id_detail_beli"));
+                    v2.add(rs.getString("id_kasir"));
+                    v2.add(rs.getString("id_produk"));
+                    v2.add(rs.getString("jumlah"));
+                    v2.add(rs.getString("subtotal"));
+                }
+                model.addRow(v2);
+
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(menuAdminHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btsearchActionPerformed
+
+    public void kosongkan() {
+        txtidproduk.setText("");
+        txtsupplier.setText("");
+        txtnamaproduk.setText("");
+        txtstok.setText("");
+        txthrg.setText("");
+        txtidk.setText("");
+        txtidp.setText("");
+        txtidp.setText("");
+        txtjumlah.setText("");
+        txttotal.setText("");
+    }
+
+    public void terimapesan() {
+
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "localhost:9092");
+        props.setProperty("group.id", "konsumer-group");
+        props.setProperty("enable.auto.commit", "true");
+        props.setProperty("auto.commit.interval.ms", "1000");
+        props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        try ( KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+            consumer.subscribe(Arrays.asList("register"));
+
+            while (true) {
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                for (ConsumerRecord<String, String> record : records) {
+                    try {
+                        if (tr == null) {
+                            tr = new Transaksi(); // Inisialisasi tlog jika belum ada
+                        }
+
+                        tr.toObject(record.value());
+
+                        txtidk.setText(tr.getId_kasir());
+                        txtidp.setText(tr.getId_produk());
+                        txtjumlah.setText(String.valueOf(tr.getJumlah()));
+                        txttotal.setText(String.valueOf(tr.getTotal()));
+                        modelPesan.addElement(record.value());
+
+                        if ("kosongkan".equalsIgnoreCase(record.value())) {
+                            modelPesan.clear();
+
+                        };
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -958,8 +1111,7 @@ public class menuAdminHome extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        
-        
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -992,7 +1144,6 @@ public class menuAdminHome extends javax.swing.JFrame {
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel LBEXIT;
     private javax.swing.JLabel LBEXIT1;
@@ -1007,7 +1158,6 @@ public class menuAdminHome extends javax.swing.JFrame {
     private javax.swing.JLabel bgmenu;
     private javax.swing.JButton btbersih;
     private javax.swing.JButton btbersihakun;
-    private javax.swing.JButton btcetak;
     private javax.swing.JButton btcetakpm;
     private javax.swing.JButton btdel;
     private javax.swing.JButton btdelpm;
@@ -1042,6 +1192,7 @@ public class menuAdminHome extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1078,8 +1229,9 @@ public class menuAdminHome extends javax.swing.JFrame {
     private javax.swing.JTable tabelproduk;
     private javax.swing.JTable tbdetailbeli;
     private javax.swing.JTable tbdetailpm;
+    private javax.swing.JTextField txtcari;
+    private javax.swing.JTextField txthrg;
     private javax.swing.JTextField txtidag;
-    private javax.swing.JTextField txtiddp;
     private javax.swing.JTextField txtidk;
     private javax.swing.JTextField txtidp;
     private javax.swing.JTextField txtidpm;
@@ -1088,16 +1240,14 @@ public class menuAdminHome extends javax.swing.JFrame {
     private javax.swing.JTextField txtjumlah;
     private javax.swing.JTextField txtjumlahpm;
     private javax.swing.JTextField txtnamaakun;
-    private javax.swing.JTextField txtnamap;
     private javax.swing.JTextField txtnamappm;
     private javax.swing.JTextField txtnamaproduk;
     private javax.swing.JTextField txtpassakun;
-    private javax.swing.JTextField txtsearch;
     private javax.swing.JTextField txtsearchpm;
     private javax.swing.JTextField txtstok;
-    private javax.swing.JTextField txtsub;
     private javax.swing.JTextField txtsubpm;
     private javax.swing.JTextField txtsupplier;
+    private javax.swing.JTextField txttotal;
     private javax.swing.JTextField txtusername;
     // End of variables declaration//GEN-END:variables
 }

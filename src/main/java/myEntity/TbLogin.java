@@ -58,13 +58,14 @@ public class TbLogin {
 
     @Override
     public String toString() {
-        return String.format("[{name:%s,username:%s,pass:%s}]", name, username, pass);
+        return String.format("[{name:%s,username:%s,pass:%s,status:%s}]", name, username, pass, status);
     }
 
     public void toObject(String string) {
         name = string.substring(string.indexOf("name") + 5, string.indexOf("username") - 1);
         username = string.substring(string.indexOf("username") + 9, string.indexOf("pass") - 1);
-        pass = string.substring(string.indexOf("pass") + 5, string.indexOf("]") - 1);
+        pass = string.substring(string.indexOf("pass") + 5, string.indexOf("status") - 1);
+        status = string.substring(string.indexOf("status") + 7, string.indexOf("]") - 1);
     }
 
 }

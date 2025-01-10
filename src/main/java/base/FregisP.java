@@ -53,7 +53,7 @@ public class FregisP extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         txtRepass = new javax.swing.JPasswordField();
         btnKembali = new javax.swing.JToggleButton();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        txtStatus = new javax.swing.JComboBox<>();
         jLabel10 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -145,10 +145,10 @@ public class FregisP extends javax.swing.JFrame {
             }
         });
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Kasir", "Gudang" }));
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        txtStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Kasir", "Gudang" }));
+        txtStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox1ActionPerformed(evt);
+                txtStatusActionPerformed(evt);
             }
         });
 
@@ -199,7 +199,7 @@ public class FregisP extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGap(1, 1, 1)))))
                 .addGap(6, 6, 6))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
@@ -230,7 +230,7 @@ public class FregisP extends javax.swing.JFrame {
                     .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
                 .addGap(16, 16, 16)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -291,6 +291,7 @@ public class FregisP extends javax.swing.JFrame {
         TbLogin tlog = new TbLogin();
         tlog.setName(txtNama.getText());
         tlog.setUsername(txtUsername.getText());
+        tlog.setStatus(String.valueOf(txtStatus.getSelectedItem()));
         tlog.setPass(txtPass.getText());
         try ( Producer<String, String> producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props)) {
             producer.send(new ProducerRecord<>("register", "", tlog.toString()));
@@ -336,9 +337,9 @@ public class FregisP extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btRegisKeyPressed
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+    private void txtStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtStatusActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    }//GEN-LAST:event_txtStatusActionPerformed
 
     /**
      * @param args the command line arguments
@@ -386,7 +387,6 @@ public class FregisP extends javax.swing.JFrame {
     private javax.swing.JButton btRegis;
     private javax.swing.JToggleButton btnKembali;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel3;
@@ -400,6 +400,7 @@ public class FregisP extends javax.swing.JFrame {
     private javax.swing.JTextField txtNama;
     private javax.swing.JPasswordField txtPass;
     private javax.swing.JPasswordField txtRepass;
+    private javax.swing.JComboBox<String> txtStatus;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }

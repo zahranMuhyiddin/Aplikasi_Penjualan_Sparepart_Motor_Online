@@ -26,6 +26,7 @@ public class FregisK implements Runnable {
     private JTextField txtNama;
     private JTextField txtUsername;
     private JTextField txtPass;
+    private JTextField txtStatus;
 
     public FregisK() {
         initializeUI();
@@ -69,6 +70,10 @@ public class FregisK implements Runnable {
         JLabel lbPassword = new JLabel("Password:");
         lbPassword.setBounds(20, 300, 100, 25);
         lbPassword.setForeground(java.awt.Color.WHITE);
+        
+        JLabel lbStatus = new JLabel("Status:");
+        lbStatus.setBounds(20, 340, 100, 25);
+        lbStatus.setForeground(java.awt.Color.WHITE);
 
         txtNama = new JTextField();
         txtNama.setBounds(120, 220, 150, 25);
@@ -78,9 +83,12 @@ public class FregisK implements Runnable {
 
         txtPass = new JTextField();
         txtPass.setBounds(120, 300, 150, 25);
+        
+        txtStatus = new JTextField();
+        txtStatus.setBounds(120, 340, 150, 25);
 
         btnKirim = new JButton("KIRIM");
-        btnKirim.setBounds(90, 340, 100, 30);
+        btnKirim.setBounds(90, 380, 100, 30);
         btnKirim.setBackground(new java.awt.Color(85, 85, 85));
         btnKirim.setForeground(java.awt.Color.WHITE);
         btnKirim.addActionListener(this::onKirimClicked);
@@ -98,11 +106,13 @@ public class FregisK implements Runnable {
         panel.add(txtUsername);
         panel.add(lbPassword);
         panel.add(txtPass);
+        panel.add(lbStatus);
+        panel.add(txtStatus);
         panel.add(btnKirim);
         panel.add(scrollPane);
 
         frame.add(panel);
-        frame.setSize(300, 400);
+        frame.setSize(300, 420);
         frame.setLocationRelativeTo(null);
         frame.setUndecorated(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -113,6 +123,7 @@ public class FregisK implements Runnable {
         String nama = txtNama.getText().trim();
         String username = txtUsername.getText().trim();
         String password = txtPass.getText().trim();
+        String status = txtStatus.getText().trim();
 
         // Validasi input
         if (nama.isEmpty() || username.isEmpty() || password.isEmpty()) {
@@ -125,7 +136,7 @@ public class FregisK implements Runnable {
 
         // Simpan ke database
         try {
-            tlog = new TbLogin(nama, username, password); // Pastikan TbLogin memiliki constructor ini
+            tlog = new TbLogin(nama, username, password, status); // Pastikan TbLogin memiliki constructor ini
             saveToDatabase();
             JOptionPane.showMessageDialog(frame,
                     "Data berhasil disimpan!",
@@ -137,6 +148,7 @@ public class FregisK implements Runnable {
             txtNama.setText("");
             txtUsername.setText("");
             txtPass.setText("");
+            txtStatus.setText("");
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame,
@@ -172,6 +184,7 @@ public class FregisK implements Runnable {
                         txtNama.setText(tlog.getName());
                         txtUsername.setText(tlog.getUsername());
                         txtPass.setText(tlog.getPass());
+                        txtStatus.setText(tlog.getStatus());
                         modelPesan.addElement(record.value());
 
                         if ("kosongkan".equalsIgnoreCase(record.value())) {

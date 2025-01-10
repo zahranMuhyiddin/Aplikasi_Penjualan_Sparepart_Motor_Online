@@ -21,13 +21,14 @@ public class SysLogin {
     
     
     public int Regis(TbLogin reg) {
-        String sql = "INSERT INTO tblogin (name, username, password) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO tblogin (name, username, password, status) VALUES (?, ?, ?, ?)";
         try ( Connection cnn = db.getConnection();  PreparedStatement pst = cnn.prepareStatement(sql)) {
 
             // Set parameter query
             pst.setString(1, reg.getName());
             pst.setString(2, reg.getUsername());
             pst.setString(3, reg.getPass());
+            pst.setString(4, reg.getStatus());
 
             // Eksekusi query
             return pst.executeUpdate();
