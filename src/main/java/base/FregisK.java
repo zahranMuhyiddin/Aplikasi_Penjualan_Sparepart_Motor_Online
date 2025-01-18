@@ -114,7 +114,7 @@ public class FregisK implements Runnable {
         frame.add(panel);
         frame.setSize(300, 420);
         frame.setLocationRelativeTo(null);
-        frame.setUndecorated(true);
+        frame.setUndecorated(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -137,10 +137,10 @@ public class FregisK implements Runnable {
         // Simpan ke database
         try {
             tlog = new TbLogin(nama, username, password, status); // Pastikan TbLogin memiliki constructor ini
-            saveToDatabase();
+            
             JOptionPane.showMessageDialog(frame,
-                    "Data berhasil disimpan!",
-                    "Sukses",
+                    "ok",
+                    "ok",
                     JOptionPane.INFORMATION_MESSAGE);
             modelPesan.clear();
 
@@ -162,8 +162,8 @@ public class FregisK implements Runnable {
     @Override
     public void run() {
         Properties props = new Properties();
-        props.setProperty("bootstrap.servers", "localhost:9092");
-        props.setProperty("group.id", "konsumer-group");
+        props.setProperty("bootstrap.servers", "192.168.100.7:9092, 192.168.100.164:9093");
+        props.setProperty("group.id", "register-group-1");
         props.setProperty("enable.auto.commit", "true");
         props.setProperty("auto.commit.interval.ms", "1000");
         props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -179,13 +179,16 @@ public class FregisK implements Runnable {
                         if (tlog == null) {
                             tlog = new TbLogin(); // Inisialisasi tlog jika belum ada
                         }
-
+                        
                         tlog.toObject(record.value());
                         txtNama.setText(tlog.getName());
                         txtUsername.setText(tlog.getUsername());
                         txtPass.setText(tlog.getPass());
                         txtStatus.setText(tlog.getStatus());
                         modelPesan.addElement(record.value());
+                        saveToDatabase();
+                        
+                        
 
                         if ("kosongkan".equalsIgnoreCase(record.value())) {
                             modelPesan.clear();

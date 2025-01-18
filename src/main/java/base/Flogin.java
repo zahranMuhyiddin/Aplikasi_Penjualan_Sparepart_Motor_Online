@@ -54,7 +54,6 @@ public class Flogin extends javax.swing.JFrame {
         txtPass = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setUndecorated(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(85, 85, 85));
@@ -148,7 +147,7 @@ public class Flogin extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 310, 570));
 
-        setSize(new java.awt.Dimension(308, 570));
+        setSize(new java.awt.Dimension(324, 578));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 

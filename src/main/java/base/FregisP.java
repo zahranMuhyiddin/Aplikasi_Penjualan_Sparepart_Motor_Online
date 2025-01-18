@@ -57,7 +57,6 @@ public class FregisP extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setUndecorated(true);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -257,7 +256,7 @@ public class FregisP extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 310, 570));
 
-        setSize(new java.awt.Dimension(311, 570));
+        setSize(new java.awt.Dimension(327, 578));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -327,8 +326,8 @@ public class FregisP extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("linger.ms", 1);
+        props.put("bootstrap.servers", "192.168.100.7:9092, 192.168.100.164:9093");
+        props.put("linger.ms", 2);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     }//GEN-LAST:event_formWindowOpened

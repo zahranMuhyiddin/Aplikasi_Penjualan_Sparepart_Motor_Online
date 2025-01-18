@@ -6,21 +6,19 @@ package myEntity;
 
 /**
  *
- * @author LENOVO
+ * @author user
  */
-public class ProdukBaru {
+public class Riwayat {
+    String idproduk, idsupplier, namaproduk, stok;
 
-    String idproduk, idsupplier, namaproduk, stok, harga;
-
-    public ProdukBaru() {
+    public Riwayat() {
     }
 
-    public ProdukBaru(String idproduk, String idsupplier, String namaproduk, String stok, String harga) {
+    public Riwayat(String idproduk, String idsupplier, String namaproduk, String stok) {
         this.idproduk = idproduk;
         this.idsupplier = idsupplier;
         this.namaproduk = namaproduk;
         this.stok = stok;
-        this.harga = harga;
     }
 
     public String getIdproduk() {
@@ -54,26 +52,17 @@ public class ProdukBaru {
     public void setStok(String stok) {
         this.stok = stok;
     }
-
-    public String getHarga() {
-        return harga;
-    }
-
-    public void setHarga(String harga) {
-        this.harga = harga;
-    }
-
+    
     @Override
     public String toString() {
-        return String.format("[{idproduk:%s,idsupplier:%s,namaproduk:%s,stok:%s,harga:%s}]", idproduk, idsupplier, namaproduk, stok, harga);
+        return String.format("[{idproduk:%s,idsupplier:%s,namaproduk:%s,stok:%s}]", idproduk, idsupplier, namaproduk, stok);
     }
 
     public void toObject(String string) {
         idproduk = string.substring(string.indexOf("idproduk") + 9, string.indexOf("idsupplier") - 1);
-        idsupplier = string.substring(string.indexOf("idsupplier") + 11, string.indexOf("namaproduk") - 1);
+        idsupplier= string.substring(string.indexOf("idsupplier") + 11, string.indexOf("namaproduk") - 1);
         namaproduk = string.substring(string.indexOf("namaproduk") + 11, string.indexOf("stok") - 1);
-        stok = string.substring(string.indexOf("stok") + 5, string.indexOf("harga") - 1);
-        harga = string.substring(string.indexOf("harga") + 6, string.indexOf("]") - 1);
+        stok = string.substring(string.indexOf("stok") + 5, string.indexOf("]") - 1);
     }
     
 }
